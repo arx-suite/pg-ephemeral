@@ -2,8 +2,10 @@ use std::{
     collections::HashMap,
     path::{Path, PathBuf},
 };
+use tempfile::{Builder as TempDirBuilder, TempDir};
 
-use super::constants::{DEFAULT_DB_NAME, DEFAULT_DB_USER};
+use super::constants::{DEFAULT_DB_NAME, DEFAULT_DB_USER, PROGRAM_POSTGRES, TMP_DIR_PREFIX};
+use super::utils::random_free_port;
 use super::{PasswordMethod, PgEphemeral};
 use crate::EphemeralResult;
 
@@ -157,7 +159,103 @@ impl PgEphemeralBuilder {
         self
     }
 
-    pub async fn build(self) -> EphemeralResult<PgEphemeral> {
-        todo!()
+    pub fn build(self) -> EphemeralResult<PgEphemeral> {
+        // database port
+        let db_port = self.allocate_port()?;
+
+        // database password
+        let _ = self.db_password.check_valid()?;
+
+        // data dir
+        let temp_dir = self.temp_dir()?;
+
+        // binary
+        let bin_base_path = self.bin_base_path()?;
+
+        Ok(PgEphemeral {
+            db_user: self.db_user,
+            db_pass: self.db_password,
+            db_port,
+            db_name: self.db_name,
+            persist: self.persist_data_dir,
+            dump_path: self.dump_path,
+            temp_dir,
+            bin_base_path,
+        })
+    }
+
+    #[must_use]
+    #[inline]
+    fn allocate_port(&self) -> EphemeralResult<u16> {
+        let db_port = match self.db_port {
+            Some(db_port) => db_port,
+            None => random_free_port(),
+        };
+
+        Ok(db_port)
+    }
+
+    #[must_use]
+    #[inline]
+    fn temp_dir(&self) -> EphemeralResult<TempDir> {
+        let root_dir = TempDir::new()?;
+        let pg_data_dir = TempDirBuilder::new()
+            .disable_cleanup(!self.persist_data_dir)
+            .prefix(TMP_DIR_PREFIX)
+            .tempdir_in(root_dir)?;
+
+        Ok(pg_data_dir)
+    }
+
+    #[must_use]
+    fn bin_base_path(&self) -> EphemeralResult<PathBuf> {
+        use crate::platform::{ProgramFinder, ProgramFinderImpl};
+
+        let bin_base_path = match self.bin_base_path.clone() {
+            Some(base_path) => {
+                if !std::fs::exists(&base_path)? {
+                    return Err(BuilderError::BinaryPathNotExists(base_path))?;
+                }
+
+                if !base_path.is_dir() {
+                    return Err(BuilderError::BinaryPathNotFolder)?;
+                }
+
+                let postgres_bin_path = base_path.join(PROGRAM_POSTGRES);
+                if !std::fs::exists(&postgres_bin_path)? {
+                    return Err(BuilderError::BinaryNotFound {
+                        binary: PROGRAM_POSTGRES.into(),
+                        search_path: base_path,
+                    })?;
+                }
+
+                Some(base_path)
+            }
+            None => None,
+        };
+
+        let bin_base_path = match bin_base_path {
+            Some(bin_path) => bin_path,
+            None => {
+                let postgres_bin_path =
+                    ProgramFinderImpl.find(PROGRAM_POSTGRES).ok_or_else(|| {
+                        BuilderError::BinaryNotFound {
+                            binary: PROGRAM_POSTGRES.into(),
+                            search_path: "$PATH".into(),
+                        }
+                    })?;
+
+                postgres_bin_path
+                    .parent()
+                    .ok_or_else(|| {
+                        BuilderError::Custom(
+                            "failed to get the directory of the postgres binary".into(),
+                        )
+                    })?
+                    .to_path_buf()
+            }
+        };
+
+        Ok(bin_base_path)
     }
 }

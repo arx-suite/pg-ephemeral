@@ -20,7 +20,23 @@ impl PgEphemeral {
         PgEphemeralBuilder::new()
     }
 
+    #[inline]
     pub fn connection_uri(&self) -> String {
-        todo!()
+        let uri = match self.db_pass.clone() {
+            PasswordMethod::File { file_path: _ } => {
+                format!(
+                    "postgresql://{}@localhost:{}/{}",
+                    self.db_user, self.db_port, self.db_name
+                )
+            }
+            PasswordMethod::Text(pass) => {
+                format!(
+                    "postgresql://{}:{}@localhost:{}/{}",
+                    self.db_user, pass, self.db_port, self.db_name
+                )
+            }
+        };
+
+        uri
     }
 }

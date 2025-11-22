@@ -3,8 +3,7 @@ use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::{Child, Command};
 
 use crate::ephemeral::constants::{PROGRAM_INITDB, PROGRAM_POSTGRES};
-use crate::ephemeral::{PgEphemeral, PgEphemeralBuilder};
-use crate::{EphemeralError, EphemeralResult};
+use crate::{EphemeralError, EphemeralResult, PgEphemeral, PgEphemeralBuilder};
 
 #[derive(Debug)]
 pub struct PgDaemon {

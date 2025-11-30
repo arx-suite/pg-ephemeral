@@ -1,5 +1,8 @@
+#![allow(dead_code)]
+
 mod daemon;
 mod error;
+mod macros;
 mod platform;
 
 pub mod ephemeral;

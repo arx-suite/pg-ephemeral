@@ -139,7 +139,7 @@ impl PgEphemeralBuilder {
         #[cfg(feature = "tracing")]
         match _old {
             Some(old) => {
-                tracing::warn!("overriding the server config param", %key, old_value = %old, new_value = %value);
+                tracing::warn!(%key, old_value = %old, new_value = %value, "overriding the server config param");
             }
             _ => {}
         }
@@ -152,7 +152,7 @@ impl PgEphemeralBuilder {
         #[cfg(feature = "tracing")]
         match _old {
             Some(old) => {
-                tracing::warn!("overriding the initdb arg", %key, old_value = %old, new_value = %value);
+                tracing::warn!(%key, old_value = %old, new_value = %value, "overriding the initdb arg");
             }
             _ => {}
         }

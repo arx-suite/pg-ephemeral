@@ -7,7 +7,9 @@ edition.workspace = true
 tempfile = "3.23.0"
 thiserror = "2"
 tokio = { version = "^1", features = ["full"] }
+
 tracing = { version = "0.1", optional = true }
+testcontainers = { version = "0.26.0", optional = true }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.159"
@@ -23,6 +25,12 @@ windows-sys = { version = "0.61", features = [
 tracing-subscriber = "0.3.20"
 
 [features]
-default = []
+default = ["local", "containerized"]
+
+# enables running postgres inside docker containers
+containerized = ["dep:testcontainers"]
+# enables running a postgres instance directly on the host system
+local = []
+
 cli = []
 tracing = ["dep:tracing"]

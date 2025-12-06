@@ -9,10 +9,10 @@ mod macros;
 mod platform;
 
 #[cfg(feature = "local")]
-mod local;
+pub mod local;
 
 #[cfg(feature = "containerized")]
-mod containerized;
+pub mod containerized;
 
 pub use error::Error as EphemeralError;
 pub use error::Result as EphemeralResult;

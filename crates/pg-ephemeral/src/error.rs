@@ -10,6 +10,7 @@ pub enum Error {
     #[error("invalid password configuration: {0}")]
     PasswordMethodFailed(String),
 
+    #[cfg(feature = "local")]
     #[error("failed to construct `Local`: {0}")]
     LocalBuilderError(#[from] LocalBuilderError),
 }

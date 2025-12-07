@@ -18,6 +18,17 @@ macro_rules! define_pg_tags {
                 }
             }
         }
+
+        impl From<PgImageTag> for String {
+            fn from(tag: PgImageTag) -> Self {
+                match tag {
+                    PgImageTag::Custom(tag) => tag.to_string(),
+                    $(
+                        PgImageTag::$variant => $tag.to_string(),
+                    )+
+                }
+            }
+        }
     }
 }
 

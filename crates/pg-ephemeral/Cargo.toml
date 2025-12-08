@@ -34,3 +34,9 @@ local = []
 
 cli = []
 tracing = ["dep:tracing"]
+
+
+[[example]]
+name = "containerized"
+path = "examples/containerized.rs"
+required-features = ["tracing", "containerized"]

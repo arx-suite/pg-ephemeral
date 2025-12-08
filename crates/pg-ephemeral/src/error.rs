@@ -1,3 +1,4 @@
+use crate::containerized::ContainerizedError;
 use crate::local::config::builder::LocalBuilderError;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -13,4 +14,8 @@ pub enum Error {
     #[cfg(feature = "local")]
     #[error("failed to construct `Local`: {0}")]
     LocalBuilderError(#[from] LocalBuilderError),
+
+    #[cfg(feature = "containerized")]
+    #[error("containerized error: {0}")]
+    ContainerizedError(#[from] ContainerizedError),
 }

@@ -7,7 +7,7 @@ use tempfile::{Builder as TempDirBuilder, TempDir};
 use super::{LocalBuilderError, LocalBuilderResult, LocalConfig};
 use crate::common::PasswordMethod;
 use crate::common::constants::{
-    DEFAULT_DB_NAME, DEFAULT_DB_USER, PROGRAM_POSTGRES, TMP_DIR_PREFIX,
+    DEFAULT_DB_NAME, DEFAULT_DB_USER, LOCAL_PROGRAM_POSTGRES, LOCAL_TMP_DIR_PREFIX,
 };
 use crate::common::port::random_free_port;
 
@@ -183,7 +183,7 @@ impl LocalBuilder {
         let root_dir = TempDir::new()?;
         let pg_data_dir = TempDirBuilder::new()
             .disable_cleanup(!self.persist_data_dir)
-            .prefix(TMP_DIR_PREFIX)
+            .prefix(LOCAL_TMP_DIR_PREFIX)
             .tempdir_in(root_dir)?;
 
         Ok(pg_data_dir)
@@ -203,10 +203,10 @@ impl LocalBuilder {
                     return Err(LocalBuilderError::BinaryPathNotFolder)?;
                 }
 
-                let postgres_bin_path = base_path.join(PROGRAM_POSTGRES);
+                let postgres_bin_path = base_path.join(LOCAL_PROGRAM_POSTGRES);
                 if !std::fs::exists(&postgres_bin_path)? {
                     return Err(LocalBuilderError::BinaryNotFound {
-                        binary: PROGRAM_POSTGRES.into(),
+                        binary: LOCAL_PROGRAM_POSTGRES.into(),
                         search_path: base_path,
                     })?;
                 }
@@ -220,12 +220,12 @@ impl LocalBuilder {
             Some(bin_path) => bin_path,
             None => {
                 let postgres_bin_path =
-                    ProgramFinderImpl.find(PROGRAM_POSTGRES).ok_or_else(|| {
-                        LocalBuilderError::BinaryNotFound {
-                            binary: PROGRAM_POSTGRES.into(),
+                    ProgramFinderImpl
+                        .find(LOCAL_PROGRAM_POSTGRES)
+                        .ok_or_else(|| LocalBuilderError::BinaryNotFound {
+                            binary: LOCAL_PROGRAM_POSTGRES.into(),
                             search_path: "$PATH".into(),
-                        }
-                    })?;
+                        })?;
 
                 postgres_bin_path
                     .parent()

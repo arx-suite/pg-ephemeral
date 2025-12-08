@@ -25,9 +25,9 @@ pub use containerized::*;
 // [Local] related
 #[cfg(feature = "local")]
 mod local {
-    pub const TMP_DIR_PREFIX: &'static str = "pgtemp-";
-    pub const PROGRAM_INITDB: &'static str = "initdb";
-    pub const PROGRAM_POSTGRES: &'static str = "postgres";
+    pub const LOCAL_PROGRAM_POSTGRES: &'static str = "postgres";
+    pub const LOCAL_PROGRAM_INITDB: &'static str = "initdb";
+    pub const LOCAL_TMP_DIR_PREFIX: &'static str = "pgtemp-";
 }
 
 #[cfg(feature = "local")]

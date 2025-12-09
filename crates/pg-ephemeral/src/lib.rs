@@ -1,5 +1,13 @@
 #![allow(dead_code)]
 
+#[cfg(all(not(feature = "local"), not(feature = "containerized")))]
+compile_error!("No backend selected. Enable at least one feature: `local` or `containerized`.");
+
+#[cfg(feature = "local")]
+compile_error!(
+    "The `local` backend is still under development. For now, enable only the `containerized` feature."
+);
+
 pub(crate) mod common;
 mod error;
 mod macros;

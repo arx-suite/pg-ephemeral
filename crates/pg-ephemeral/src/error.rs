@@ -1,4 +1,7 @@
+#[cfg(feature = "containerized")]
 use crate::containerized::ContainerizedError;
+
+#[cfg(feature = "local")]
 use crate::local::LocalError;
 
 pub type Result<T> = std::result::Result<T, Error>;

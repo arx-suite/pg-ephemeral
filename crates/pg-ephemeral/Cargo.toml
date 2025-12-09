@@ -25,7 +25,7 @@ windows-sys = { version = "0.61", features = [
 tracing-subscriber = "0.3.20"
 
 [features]
-default = ["local", "containerized"]
+default = ["containerized"]
 
 # enables running postgres inside docker containers
 containerized = ["dep:testcontainers"]
